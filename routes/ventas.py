@@ -1,0 +1,1 @@
+# rutas para ventas y almacenamiento

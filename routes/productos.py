@@ -1,0 +1,1 @@
+# rutas para productos (crear, listar, IA)
