@@ -1,30 +1,15 @@
-# routes/ventas.py
-from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
-from typing import List
-from datetime import datetime
-import uuid
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+from models.venta import Venta
+from db.supabase import get_session
+from utils.email import enviar_correo_admin
 
-router = APIRouter(prefix="/ventas", tags=["ventas"])
+router = APIRouter()
 
-# Simulación de base de datos en memoria (solo por ahora)
-ventas_db = []
-
-# Modelo para la venta
-class Venta(BaseModel):
-    id: str = None
-    producto: str
-    precio: float
-    comprador_email: str
-    fecha: datetime = None
-
-@router.post("/", response_model=Venta)
-async def crear_venta(venta: Venta):
-    venta.id = str(uuid.uuid4())
-    venta.fecha = datetime.utcnow()
-    ventas_db.append(venta)
-    return venta
-
-@router.get("/", response_model=List[Venta])
-async def obtener_ventas():
-    return ventas_db
+@router.post("/ventas/")
+async def crear_venta(data: dict, session: AsyncSession = Depends(get_session)):
+    nueva_venta = Venta(**data)
+    session.add(nueva_venta)
+    await session.commit()
+    await enviar_correo_admin(data["producto"], data["comprador_email"])
+    return {"status": "ok", "venta": data}
