@@ -1,7 +1,6 @@
-import os
-import uvicorn
+import os, uvicorn
 
-port = int(os.environ.get("PORT", 8000))
-print(f"🎯 Starting on port {port}")
-
+print("🚀 ENTRYPOINT INICIADO")
+port = int(os.getenv("PORT", "8000"))
+print(f"🎯 Escuchando en puerto {port}")
 uvicorn.run("main:app", host="0.0.0.0", port=port)
